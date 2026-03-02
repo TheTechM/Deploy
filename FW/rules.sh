@@ -13,6 +13,9 @@ nft add rule inet filter input iif lo accept
 # established
 nft add rule inet filter input ct state established,related accept
 
+# SSH открою, иначе теряю доступ
+nft add rule inet filter input tcp dport 22 accept
+
 # -------------------------
 # CENTOS (Proxy)
 # -------------------------
