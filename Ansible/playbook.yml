@@ -1,0 +1,96 @@
+- name: Install nftables
+  package:
+    name: nftables
+    state: present
+
+- name: Enable nftables
+  systemd:
+    name: nftables
+    state: started
+    enabled: yes
+
+- name: Copy firewall rules
+  copy:
+    src: ../FW/rules.sh
+    dest: /root/rules.sh
+    mode: '0755'
+
+- name: Apply firewall rules
+  command: bash /root/rules.sh
+
+- hosts: all
+  become: yes
+  tasks:
+
+  # ------------------------
+  # CENTOS
+  # ------------------------
+
+  - name: Ensure Valkey installed (CentOS)
+    when: ansible_os_family == "RedHat"
+    dnf:
+      name: valkey
+      state: present
+
+  - name: Copy cache-api rpm
+    when: ansible_os_family == "RedHat"
+    copy:
+      src: cache-api-1.0-1.el10.noarch.rpm
+      dest: /tmp/cache-api.rpm
+
+  - name: Install cache-api
+    when: ansible_os_family == "RedHat"
+    dnf:
+      name: /tmp/cache-api.rpm
+      state: present
+      disable_gpg_check: yes
+
+  - name: Enable and start cache-api
+    when: ansible_os_family == "RedHat"
+    systemd:
+      name: cache-api
+      enabled: yes
+      state: started
+
+  - name: Enable and start Valkey
+    when: ansible_os_family == "RedHat"
+    systemd:
+      name: valkey
+      enabled: yes
+      state: started
+
+  # ------------------------
+  # UBUNTU
+  # ------------------------
+
+  - name: Ensure PostgreSQL installed (Ubuntu)
+    when: ansible_os_family == "Debian"
+    apt:
+      name: postgresql
+      state: present
+      update_cache: yes
+
+  - name: Copy backend deb
+    when: ansible_os_family == "Debian"
+    copy:
+      src: backend_1.0.deb
+      dest: /tmp/backend.deb
+
+  - name: Install backend
+    when: ansible_os_family == "Debian"
+    apt:
+      deb: /tmp/backend.deb
+
+  - name: Enable and start backend
+    when: ansible_os_family == "Debian"
+    systemd:
+      name: backend
+      enabled: yes
+      state: started
+
+  - name: Enable and start PostgreSQL
+    when: ansible_os_family == "Debian"
+    systemd:
+      name: postgresql
+      enabled: yes
+      state: started

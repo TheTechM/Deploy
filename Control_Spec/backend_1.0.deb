@@ -1,0 +1,8 @@
+Package: backend
+Version: 1.0
+Section: base
+Priority: optional
+Architecture: amd64
+Maintainer: Andrej
+Depends: postgresql
+Description: Go Backend API Service

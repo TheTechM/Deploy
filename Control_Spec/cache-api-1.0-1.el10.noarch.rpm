@@ -1,0 +1,23 @@
+Name: cache-api
+Version: 1.0
+Release: 1%{?dist}
+Summary: Flask Cache API
+License: MIT
+Requires: valkey
+
+%description
+Cache API service for BB project
+
+%files
+/opt/cache-api/app.py
+/etc/systemd/system/cache-api.service
+
+%post
+systemctl daemon-reload
+systemctl enable cache-api
+
+%preun
+systemctl stop cache-api
+
+%postun
+systemctl daemon-reload
